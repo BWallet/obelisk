@@ -26,11 +26,15 @@ send_worker::send_worker(czmqpp::context& context)
 void send_worker::queue_send(const outgoing_message& message)
 {
     czmqpp::socket socket(context_, ZMQ_PUSH);
-    BITCOIN_ASSERT(socket.self());
-    int rc = socket.connect("inproc://trigger-send");
-    BITCOIN_ASSERT(rc == 0);
-    message.send(socket);
-    socket.destroy(context_);
+    if (socket.self()){
+        // BITCOIN_ASSERT(socket.self());
+        int rc = socket.connect("inproc://trigger-send");
+        BITCOIN_ASSERT(rc == 0);
+        message.send(socket);
+        socket.destroy(context_);
+    } else {
+        printf("socket is closed\n");
+    }
 }
 
 request_worker::request_worker()
